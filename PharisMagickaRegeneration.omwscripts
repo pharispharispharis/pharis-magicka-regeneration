@@ -1,0 +1,3 @@
+PLAYER: Scripts/Pharis/PharisMagickaRegeneration/settings.lua
+GLOBAL: Scripts/Pharis/PharisMagickaRegeneration/globalSettings.lua
+PLAYER, NPC, CREATURE: Scripts/Pharis/PharisMagickaRegeneration/actor.lua
