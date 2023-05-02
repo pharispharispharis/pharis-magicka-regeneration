@@ -16,7 +16,7 @@ This mod uses OpenMW Lua and requires OpenMW 0.48 or higher.
 
 None currently known. If any issues are found report them in one of three places:
 
-- [Bugs section of the Nexus page]( https://www.nexusmods.com/morrowind/mods/51981?tab=bugs )
+- [Bugs section of the Nexus page]( https://www.nexusmods.com/morrowind/mods/52779?tab=bugs )
 - [Morrowind Modding Community Discord (Pharis#8436)]( https://discord.me/mwmods )
 - [Github repository]( https://github.com/PharisMods/pharis-magicka=regeneration )
 <br><br>
