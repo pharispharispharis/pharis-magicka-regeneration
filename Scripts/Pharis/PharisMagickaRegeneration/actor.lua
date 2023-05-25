@@ -63,14 +63,14 @@ end
 
 generalSettings:subscribe(async:callback(updateSettings))
 gameplaySettings:subscribe(async:callback(updateSettings))
-
+--[[
 local function suppressRegen(seconds)
 	if (seconds <= suppressRegenTotalSeconds - suppressRegenSecondsPassed) then return end
 
 	suppressRegenSecondsPassed = 0
 	suppressRegenTotalSeconds = seconds
 	regenSuppressed = true
-end
+end]]
 
 local function magickaRegenTick()
 	if (not runOnSelf) then return end
@@ -165,7 +165,7 @@ local function onUpdate(dt)
 	if (not runOnSelf) then return end
 
 	if (dynamicStats.health(self).current <= 0) then return end
-
+--[[
 	if (regenSuppressed) then
 		suppressRegenSecondsPassed = suppressRegenSecondsPassed + dt
 
@@ -174,7 +174,7 @@ local function onUpdate(dt)
 			suppressRegenTotalSeconds = nil
 			regenSuppressed = false
 		end
-	end
+	end]]
 
 	regenTickSecondsPassed = regenTickSecondsPassed + dt
 
