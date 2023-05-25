@@ -93,7 +93,6 @@ local function magickaRegenTick()
 
 	-- Fatigue
 	-- Neutral fatigue ratio range [0.5, 0.75]
-	-- Minumum multiplier of 0.75 at zero fatigue ratio
 	local fatigueMultiplier = 1.0
 	local fatigueStat = dynamicStats.fatigue(self)
 	local fatigueRatio = math.max(0, fatigueStat.current / fatigueStat.base)
