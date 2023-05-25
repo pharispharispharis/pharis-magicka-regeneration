@@ -50,7 +50,8 @@ I.Settings.registerGroup {
 	permanentStorage = false,
 	settings = {
 		setting("enablePlayerRegeneration", "checkbox", {}, "Enable Player Regeneration", "", true),
-		setting("enableNonPlayerRegeneration", "checkbox", {}, "Enable NPC and Creature Regeneration", "", true),
+		setting("enableNPCRegeneration", "checkbox", {}, "Enable NPC Regeneration", "", true),
+		setting("enableCreatureRegeneration", "checkbox", {}, "Enable Creature Regeneration", "", true),
 		setting("enableLowMagickaRegenerationBoost", "checkbox", {}, "Enable Low Magicka Regeneration Boost", enableLowMagickaRegenerationBoostDescription, true),
 		setting("baseMultiplier", "number", {min = 0.01, max = 100.0}, "Base Multiplier", baseMultiplierDescription, 1.0),
 	},

@@ -47,12 +47,14 @@ local suppressRegenTotalSeconds
 local function updateSettings()
 	local modEnable = generalSettings:get("modEnable")
 	local enablePlayerRegeneration = gameplaySettings:get("enablePlayerRegeneration")
-	local enableNonPlayerRegeneration = gameplaySettings:get("enableNonPlayerRegeneration")
+	local enableNPCRegeneration = gameplaySettings:get("enableNPCRegeneration")
+	local enableCreatureRegeneration = gameplaySettings:get("enableCreatureRegeneration")
 	enableLowMagickaRegenerationBoost = gameplaySettings:get("enableLowMagickaRegenerationBoost")
 	baseMultiplier = gameplaySettings:get("baseMultiplier")
 
-	local isPlayer = self.type == types.Player
-	runOnSelf = modEnable and ((isPlayer and enablePlayerRegeneration) or (not isPlayer and enableNonPlayerRegeneration))
+	runOnSelf = modEnable and ((types.Player.objectIsInstance(self) and enablePlayerRegeneration)
+									or (types.NPC.objectIsInstance(self) and enableNPCRegeneration)
+									or (types.Creature.objectIsInstance(self) and enableCreatureRegeneration))
 
 	-- Causes first tick after mod is re-enabled to be skipped to prevent huge amount of
 	-- regen because of how much time has passed since mod was disabled
@@ -161,9 +163,9 @@ local function magickaRegenTick()
 end
 
 local function onUpdate(dt)
-	if (not runOnSelf) then return end
-
-	if (dynamicStats.health(self).current <= 0) then return end
+	if (not runOnSelf)
+		or (dynamicStats.health(self).current <= 0)
+		or (Actor.activeEffects(self):getEffect(core.magic.EFFECT_TYPE.StuntedMagicka)) then return end
 --[[
 	if (regenSuppressed) then
 		suppressRegenSecondsPassed = suppressRegenSecondsPassed + dt
