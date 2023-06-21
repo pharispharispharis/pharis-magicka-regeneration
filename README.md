@@ -1,10 +1,9 @@
 ## Description
 
 Lua magicka regeneration for all actors based on Willpower, current fatigue ratio, and optionally current magicka ratio. I intentionally omitted using intelligence in the
-calculations because I wanted to keep max magicka separate from regeneration unlike in Oblivion and Skyrim. As active effects aren't currently accessible with Lua unfortunately you will have to manually
-disable player regeneration if you have the stunted magicka effect. The included plugin simply sets the fRestMagickaMult GMST to zero to prevent stacking of vanilla regeneration with the mod.
+calculations because I wanted to keep max magicka separate from regeneration unlike in Oblivion and Skyrim. The included plugin simply sets the fRestMagickaMult GMST to zero to prevent stacking of vanilla regeneration with the mod.
 
-I plan on updating to properly account for stunted magicka as soon as it is possible.
+As of version 1.1.0 stunted magicka is properly accounted for and will prevent regeneration.
 <br><br>
 
 ## Requirements
