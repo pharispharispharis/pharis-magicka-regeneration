@@ -7,7 +7,7 @@ Author: Pharis
 
 local I = require("openmw.interfaces")
 
-local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modInfo")
+local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modinfo")
 
 -- Magicka regeneration settings description(s)
 local modEnableDescription = "To mod or not to mod."

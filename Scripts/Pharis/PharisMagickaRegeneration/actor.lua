@@ -14,7 +14,6 @@ local util = require('openmw.util')
 
 local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modinfo")
 
--- Settings
 local generalSettings = storage.globalSection("SettingsGlobal" .. modInfo.name)
 local gameplaySettings = storage.globalSection("SettingsGlobal" .. modInfo.name .. "Gameplay")
 
@@ -23,7 +22,6 @@ local baseMultiplier
 
 local runOnSelf
 
--- Other variables
 local Actor = types.Actor
 
 local attributeStats = Actor.stats.attributes
