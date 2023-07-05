@@ -86,8 +86,6 @@ local function removeSuppression()
 end
 
 local function magickaRegenTick()
-	if (not runOnSelf) then return end
-
 	local magickaStat = dynamicStats.magicka(self)
 	local currentMagickaCurrent = magickaStat.current
 	local currentMagickaBase = magickaStat.base
