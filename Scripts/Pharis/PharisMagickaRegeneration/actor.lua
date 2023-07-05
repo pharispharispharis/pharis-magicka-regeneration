@@ -17,9 +17,6 @@ local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modinfo")
 local generalSettings = storage.globalSection("SettingsGlobal" .. modInfo.name)
 local gameplaySettings = storage.globalSection("SettingsGlobal" .. modInfo.name .. "Gameplay")
 
-local enableLowMagickaRegenerationBoost
-local baseMultiplier
-
 local runOnSelf
 
 local Actor = types.Actor
@@ -41,27 +38,18 @@ local regenSuppressed = false
 local suppressRegenSecondsPassed = 0
 local suppressRegenTotalSeconds = -1
 
-local function updateSettings()
-	local modEnable = generalSettings:get("modEnable")
-	local enablePlayerRegeneration = gameplaySettings:get("enablePlayerRegeneration")
-	local enableNPCRegeneration = gameplaySettings:get("enableNPCRegeneration")
-	local enableCreatureRegeneration = gameplaySettings:get("enableCreatureRegeneration")
-	enableLowMagickaRegenerationBoost = gameplaySettings:get("enableLowMagickaRegenerationBoost")
-	baseMultiplier = gameplaySettings:get("baseMultiplier")
-
-	runOnSelf = modEnable and ((types.Player.objectIsInstance(self) and enablePlayerRegeneration)
-									or (types.NPC.objectIsInstance(self) and enableNPCRegeneration)
-									or (types.Creature.objectIsInstance(self) and enableCreatureRegeneration))
+local function updateSelfRunState()
+	runOnSelf = generalSettings:get("modEnable") and ((types.Player.objectIsInstance(self) and gameplaySettings:get("enablePlayerRegeneration"))
+									or (types.NPC.objectIsInstance(self) and gameplaySettings:get("enableNPCRegeneration"))
+									or (types.Creature.objectIsInstance(self) and gameplaySettings:get("enableCreatureRegeneration")))
 
 	-- Causes first tick after mod is re-enabled to be skipped to prevent huge amount of
 	-- regen because of how much time has passed since mod was disabled
-	if (not runOnSelf) then
-		actorData = {}
-	end
+	actorData = (not runOnSelf) and {} or actorData
 end
 
-generalSettings:subscribe(async:callback(updateSettings))
-gameplaySettings:subscribe(async:callback(updateSettings))
+generalSettings:subscribe(async:callback(updateSelfRunState))
+gameplaySettings:subscribe(async:callback(updateSelfRunState))
 
 ---Temporarily halt all magicka regeneration for the duration of the timer. If 'force' is false or nil 'seconds' values less
 ---than or equal to remaining timer duration will be ignored and higher values will overwrite and reset current timer. Pass a
@@ -148,12 +136,12 @@ local function magickaRegenTick()
 
 	-- Regeneration Decay
 	local lowMagickaRegenerationBoostMultiplier = 1.0
-	if (enableLowMagickaRegenerationBoost) then
+	if (gameplaySettings:get("enableLowMagickaRegenerationBoost")) then
 		lowMagickaRegenerationBoostMultiplier = 1 + ((1 - magickaRatio) / 2)
 	end
 
 	-- Apply multipliers
-	local regenerationRate = 0.5 * baseMultiplier * fatigueMultiplier * willpowerMultiplier * lowMagickaRegenerationBoostMultiplier
+	local regenerationRate = 0.5 * gameplaySettings:get("baseMultiplier") * fatigueMultiplier * willpowerMultiplier * lowMagickaRegenerationBoostMultiplier
 
 	-- Magicka per game second * game seconds passed since last tick
 	local magickaDelta = (regenerationRate / math.max(currentGameTimeScale, actorData.prevGameTimeScale, 1)) * (currentGameTime - actorData.prevGameTime)
@@ -214,7 +202,7 @@ local interface = {
 
 return {
 	engineHandlers = {
-		onActive = updateSettings,
+		onActive = updateSelfRunState,
 		onUpdate = onUpdate
 	},
 	interfaceName = "PharisMagickaRegeneration",
