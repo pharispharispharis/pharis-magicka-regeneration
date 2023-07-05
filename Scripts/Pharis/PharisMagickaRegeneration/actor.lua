@@ -38,11 +38,13 @@ local actorData = {
 	-- prevGameTime
 }
 
+local magickaDeltaHandlers = {}
+
 local regenTickSecondsPassed = 0
 
 local regenSuppressed = false
 local suppressRegenSecondsPassed = 0
-local suppressRegenTotalSeconds
+local suppressRegenTotalSeconds = -1
 
 local function updateSettings()
 	local modEnable = generalSettings:get("modEnable")
@@ -65,14 +67,26 @@ end
 
 generalSettings:subscribe(async:callback(updateSettings))
 gameplaySettings:subscribe(async:callback(updateSettings))
---[[
-local function suppressRegen(seconds)
-	if (seconds <= suppressRegenTotalSeconds - suppressRegenSecondsPassed) then return end
 
+---Temporarily halt all magicka regeneration for the duration of the timer. If 'force' is false or nil 'seconds' values less
+---than or equal to remaining timer duration will be ignored and higher values will overwrite and reset current timer. Pass a
+---'force' value of true to always overide regardless of current timer remaining time.
+---@param seconds number Timer duration in seconds.
+---@param force any boolean or nil Force override any current timer regardless of time remaining.
+---@return boolean Whether suppression was successfully applied.
+local function suppressRegen(seconds, force)
+	if (not force) and (seconds <= suppressRegenTotalSeconds - suppressRegenSecondsPassed) then return false end
 	suppressRegenSecondsPassed = 0
 	suppressRegenTotalSeconds = seconds
 	regenSuppressed = true
-end]]
+	return true
+end
+
+local function removeSuppression()
+	suppressRegenSecondsPassed = 0
+	suppressRegenTotalSeconds = -1
+	regenSuppressed = false
+end
 
 local function magickaRegenTick()
 	if (not runOnSelf) then return end
@@ -151,6 +165,10 @@ local function magickaRegenTick()
 	-- Magicka per game second * game seconds passed since last tick
 	local magickaDelta = (regenerationRate / math.max(currentGameTimeScale, actorData.prevGameTimeScale, 1)) * (currentGameTime - actorData.prevGameTime)
 
+	for _, func in ipairs(magickaDeltaHandlers) do
+		func({magickaDelta})
+	end
+
 	-- Prevent overflow
 	magickaDelta = math.min(magickaDelta, currentMagickaBase - currentMagickaCurrent)
 
@@ -166,41 +184,46 @@ local function onUpdate(dt)
 	if (not runOnSelf)
 		or (dynamicStats.health(self).current <= 0)
 		or (Actor.activeEffects(self):getEffect(core.magic.EFFECT_TYPE.StuntedMagicka)) then return end
---[[
+
 	if (regenSuppressed) then
 		suppressRegenSecondsPassed = suppressRegenSecondsPassed + dt
-
-		if (suppressRegenSecondsPassed >= suppressRegenTotalSeconds) then
-			suppressRegenSecondsPassed = 0
-			suppressRegenTotalSeconds = nil
-			regenSuppressed = false
-		end
-	end]]
+		if (suppressRegenSecondsPassed >= suppressRegenTotalSeconds) then removeSuppression() end
+	end
 
 	regenTickSecondsPassed = regenTickSecondsPassed + dt
-
 	if (regenTickSecondsPassed >= 0.1) then
 		regenTickSecondsPassed = 0
 		magickaRegenTick()
 	end
 end
 
--- Interface will be done later
---[[
+local function getSuppressionSecondsRemaining()
+	return suppressRegenTotalSeconds ~= -1 and suppressRegenTotalSeconds - suppressRegenSecondsPassed or 0
+end
+
+---Add new handler that will be called every regeneration tick
+---to edit the magicka delta for that tick after stat-based
+---calculations are done. Magicka delta will be clamped to
+---prevent overflow after all handlers are called.
+---@param handler function The handler
+---@param priority any number or nil Handler priority
+local function addMagickaDeltaHandler(handler, priority)
+	magickaDeltaHandlers[#magickaDeltaHandlers + 1] = handler
+end
+
 local interface = {
 	version = 1,
 	suppressRegen = suppressRegen,
-	getSuppressRegenTotalSeconds = getSuppressRegenTotalSeconds,
-	getSuppressionSecondsPassed = getSuppressionSecondsPassed,
-	-- applyMultiplier
-	-- applyDelta
+	removeSuppression = removeSuppression,
+	getSuppressionSecondsRemaining = getSuppressionSecondsRemaining,
+	addMagickaDeltaHandler = addMagickaDeltaHandler
 }
-]]
+
 return {
 	engineHandlers = {
 		onActive = updateSettings,
 		onUpdate = onUpdate
 	},
-	-- interfaceName = "PharisMagickaRegeneration",
-	-- interface = interface
+	interfaceName = "PharisMagickaRegeneration",
+	interface = interface
 }
