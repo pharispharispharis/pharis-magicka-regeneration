@@ -6,6 +6,6 @@ Author: Pharis
 --]]
 
 return {
-	modName = "PharisMagickaRegeneration",
-	modVersion = "1.1.0"
+	name = "PharisMagickaRegeneration",
+	version = "1.1.0"
 }

@@ -7,10 +7,7 @@ Author: Pharis
 
 local I = require("openmw.interfaces")
 
--- Mod info
 local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modInfo")
-local modName = modInfo.modName
-local modVersion = modInfo.modVersion
 
 -- Magicka regeneration settings description(s)
 local modEnableDescription = "To mod or not to mod."
@@ -29,10 +26,10 @@ local function setting(key, renderer, argument, name, description, default)
 end
 
 I.Settings.registerGroup {
-	key = "SettingsGlobal" .. modName,
-	page = modName,
+	key = "SettingsGlobal" .. modInfo.name,
+	page = modInfo.name,
 	order = 0,
-	l10n = modName,
+	l10n = modInfo.name,
 	name = "General",
 	permanentStorage = false,
 	settings = {
@@ -41,10 +38,10 @@ I.Settings.registerGroup {
 }
 
 I.Settings.registerGroup {
-	key = "SettingsGlobal" .. modName .. "Gameplay",
-	page = modName,
+	key = "SettingsGlobal" .. modInfo.name .. "Gameplay",
+	page = modInfo.name,
 	order = 1,
-	l10n = modName,
+	l10n = modInfo.name,
 	name = "Gameplay",
 	description = "",
 	permanentStorage = false,
@@ -57,4 +54,4 @@ I.Settings.registerGroup {
 	},
 }
 
-print("[" .. modName .. "] Initialized v" .. modVersion)
+print("[" .. modInfo.name .. "] Initialized v" .. modInfo.version)

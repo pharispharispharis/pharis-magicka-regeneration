@@ -12,14 +12,11 @@ local storage = require("openmw.storage")
 local types = require("openmw.types")
 local util = require('openmw.util')
 
--- Mod info
-local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modInfo")
-local modName = modInfo.modName
-local modVersion = modInfo.modVersion
+local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modinfo")
 
 -- Settings
-local generalSettings = storage.globalSection("SettingsGlobal" .. modName)
-local gameplaySettings = storage.globalSection("SettingsGlobal" .. modName .. "Gameplay")
+local generalSettings = storage.globalSection("SettingsGlobal" .. modInfo.name)
+local gameplaySettings = storage.globalSection("SettingsGlobal" .. modInfo.name .. "Gameplay")
 
 local enableLowMagickaRegenerationBoost
 local baseMultiplier
