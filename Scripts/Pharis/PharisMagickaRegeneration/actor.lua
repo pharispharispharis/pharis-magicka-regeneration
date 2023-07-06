@@ -26,7 +26,7 @@ local TICKINTERVAL = time.second / 10
 local runOnSelf
 local stopTickTimerFn
 
-local magickaDeltaHandlers = {}
+local magickaHandlers = {}
 
 -- Data saved and compared against each tick
 local prevGameTime = -1
@@ -136,15 +136,15 @@ local function magickaRegenTick()
 	local regenerationRate = 0.5 * gameplaySettings:get("baseMultiplier") * fatigueMultiplier * willpowerMultiplier * lowMagickaRegenerationBoostMultiplier
 
 	-- Magicka per game second * game seconds passed since last tick
-	local magickaDelta = (regenerationRate / max(currentGameTimeScale, prevGameTimeScale, 1)) * (currentGameTime - prevGameTime)
+	local calculatedMagicka = {delta = (regenerationRate / max(currentGameTimeScale, prevGameTimeScale, 1)) * (currentGameTime - prevGameTime)}
 
 	-- Run all registered handlers before clamping
-	for _, handler in ipairs(magickaDeltaHandlers) do
-		handler({magickaDelta})
+	for _, handler in ipairs(magickaHandlers) do
+		handler(calculatedMagicka)
 	end
 
 	-- Prevent overflow
-	magickaDelta = min(magickaDelta, currentMagickaBase - currentMagickaCurrent)
+	local magickaDelta = min(calculatedMagicka.delta, currentMagickaBase - currentMagickaCurrent)
 
 	if (magickaDelta > 0) then
 		magickaStat.current = magickaStat.current + magickaDelta
@@ -201,8 +201,8 @@ end
 ---calculations are done. Magicka delta will be clamped to
 ---prevent overflow after all handlers are called.
 ---@param handler function The handler
-local function addMagickaDeltaHandler(handler)
-	magickaDeltaHandlers[#magickaDeltaHandlers + 1] = handler
+local function addMagickaHandler(handler)
+	magickaHandlers[#magickaHandlers + 1] = handler
 end
 
 local interface = {
@@ -210,7 +210,7 @@ local interface = {
 	suppressRegen = suppressRegen,
 	removeSuppression = removeSuppression,
 	getSuppressionSecondsRemaining = getSuppressionSecondsRemaining,
-	addMagickaDeltaHandler = addMagickaDeltaHandler
+	addMagickaHandler = addMagickaHandler
 }
 
 return {
