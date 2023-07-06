@@ -190,6 +190,8 @@ local function onUpdate(dt)
 	end
 end
 
+---Get remaining time on regeneration suppression timer in seconds.
+---@return number seconds
 local function getSuppressionSecondsRemaining()
 	return suppressRegenTotalSeconds ~= -1 and suppressRegenTotalSeconds - suppressRegenSecondsPassed or 0
 end
