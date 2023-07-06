@@ -201,8 +201,7 @@ end
 ---calculations are done. Magicka delta will be clamped to
 ---prevent overflow after all handlers are called.
 ---@param handler function The handler
----@param priority any number or nil Handler priority
-local function addMagickaDeltaHandler(handler, priority)
+local function addMagickaDeltaHandler(handler)
 	magickaDeltaHandlers[#magickaDeltaHandlers + 1] = handler
 end
 
