@@ -13,6 +13,10 @@ local time = require("openmw_aux.time")
 local types = require("openmw.types")
 local util = require('openmw.util')
 
+if core.API_REVISION < 39 then
+    error("This mod requires a newer version of OpenMW, please update.")
+end
+
 local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modinfo")
 
 local generalSettings = storage.globalSection("SettingsGlobal" .. modInfo.name)
