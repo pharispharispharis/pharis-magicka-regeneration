@@ -14,7 +14,7 @@ local types = require("openmw.types")
 local util = require('openmw.util')
 
 if core.API_REVISION < 39 then
-    error("This mod requires a newer version of OpenMW, please update.")
+	error("This mod requires a newer version of OpenMW, please update.")
 end
 
 local modInfo = require("Scripts.Pharis.PharisMagickaRegeneration.modinfo")
@@ -84,7 +84,7 @@ local function magickaRegenTick()
 	if (currentMagickaCurrent >= currentMagickaBase)
 		or (healthStat.current <= 0)
 		or (regenSuppressed)
-		or (activeEffects:getEffect(StuntedMagicka) ~= nil)
+		or (activeEffects:getEffect(StuntedMagicka).magnitude ~= 0)
 		or (prevGameTime == -1)
 		or (prevGameTimeScale == -1) then
 		prevGameTimeScale = currentGameTimeScale
@@ -134,13 +134,16 @@ local function magickaRegenTick()
 	willpowerMultiplier = max(willpowerMultiplier, 1)
 
 	-- Regeneration Decay
-	local lowMagickaRegenerationBoostMultiplier = gameplaySettings:get("enableLowMagickaRegenerationBoost") and 1 + ((1 - currentMagickaCurrent / currentMagickaBase) / 2) or 1
+	local lowMagickaRegenerationBoostMultiplier = gameplaySettings:get("enableLowMagickaRegenerationBoost") and
+	1 + ((1 - currentMagickaCurrent / currentMagickaBase) / 2) or 1
 
 	-- Apply multipliers
-	local regenerationRate = 0.5 * gameplaySettings:get("baseMultiplier") * fatigueMultiplier * willpowerMultiplier * lowMagickaRegenerationBoostMultiplier
+	local regenerationRate = 0.5 * gameplaySettings:get("baseMultiplier") * fatigueMultiplier * willpowerMultiplier *
+	lowMagickaRegenerationBoostMultiplier
 
 	-- Magicka per game second * game seconds passed since last tick
-	local calculatedMagicka = {delta = (regenerationRate / max(currentGameTimeScale, prevGameTimeScale, 1)) * (currentGameTime - prevGameTime)}
+	local calculatedMagicka = { delta = (regenerationRate / max(currentGameTimeScale, prevGameTimeScale, 1)) *
+	(currentGameTime - prevGameTime) }
 
 	-- Run all registered handlers before clamping
 	for _, handler in ipairs(magickaHandlers) do
@@ -162,7 +165,8 @@ end
 -- This check runs when an actor becomes active or whenever any settings are changed
 -- and will automatically start or stop the magicka tick timer
 local function updateSelfRunState()
-	runOnSelf = generalSettings:get("modEnable") and ((types.Player.objectIsInstance(self) and gameplaySettings:get("enablePlayerRegeneration"))
+	runOnSelf = generalSettings:get("modEnable") and
+	((types.Player.objectIsInstance(self) and gameplaySettings:get("enablePlayerRegeneration"))
 		or (types.NPC.objectIsInstance(self) and gameplaySettings:get("enableNPCRegeneration"))
 		or (types.Creature.objectIsInstance(self) and gameplaySettings:get("enableCreatureRegeneration")))
 
