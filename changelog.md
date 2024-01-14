@@ -1,5 +1,8 @@
 ## Version History
 
+### 1.2.1
+* Fixed getEffect issue for latest 0.49 dev build
+
 ### 1.2.0
 * Refactoring and optimization
 * Add interface
