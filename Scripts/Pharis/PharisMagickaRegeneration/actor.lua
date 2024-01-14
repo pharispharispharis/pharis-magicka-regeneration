@@ -25,7 +25,9 @@ local gameplaySettings = storage.globalSection("SettingsGlobal" .. modInfo.name 
 local max = math.max
 local min = math.min
 
-local TICKINTERVAL = time.second / 10
+local TICK_INTERVAL = time.second / 10
+
+local STUNTED_MAGICKA = core.magic.EFFECT_TYPE.StuntedMagicka
 
 local runOnSelf
 local stopTickTimerFn
@@ -40,14 +42,11 @@ local regenSuppressed = false
 local suppressRegenSecondsPassed = 0
 local suppressRegenTotalSeconds = -1
 
--- Superfluous? Yeah probably but this stuff is accessed
--- a lot by a script running on every active actor
 local fatigueStat = types.Actor.stats.dynamic.fatigue(self)
 local healthStat = types.Actor.stats.dynamic.health(self)
 local magickaStat = types.Actor.stats.dynamic.magicka(self)
 local willpowerStat = types.Actor.stats.attributes.willpower(self)
 local activeEffects = types.Actor.activeEffects(self)
-local StuntedMagicka = core.magic.EFFECT_TYPE.StuntedMagicka
 
 ---Temporarily halt all magicka regeneration for the duration of the timer. If 'force' is false or nil 'seconds' values less
 ---than or equal to remaining timer duration will be ignored and higher values will overwrite and reset current timer. Pass a
@@ -84,7 +83,7 @@ local function magickaRegenTick()
 	if (currentMagickaCurrent >= currentMagickaBase)
 		or (healthStat.current <= 0)
 		or (regenSuppressed)
-		or (activeEffects:getEffect(StuntedMagicka).magnitude ~= 0)
+		or (activeEffects:getEffect(STUNTED_MAGICKA).magnitude ~= 0)
 		or (prevGameTime == -1)
 		or (prevGameTimeScale == -1) then
 		prevGameTimeScale = currentGameTimeScale
@@ -135,15 +134,15 @@ local function magickaRegenTick()
 
 	-- Regeneration Decay
 	local lowMagickaRegenerationBoostMultiplier = gameplaySettings:get("enableLowMagickaRegenerationBoost") and
-	1 + ((1 - currentMagickaCurrent / currentMagickaBase) / 2) or 1
+		1 + ((1 - currentMagickaCurrent / currentMagickaBase) / 2) or 1
 
 	-- Apply multipliers
 	local regenerationRate = 0.5 * gameplaySettings:get("baseMultiplier") * fatigueMultiplier * willpowerMultiplier *
-	lowMagickaRegenerationBoostMultiplier
+		lowMagickaRegenerationBoostMultiplier
 
 	-- Magicka per game second * game seconds passed since last tick
 	local calculatedMagicka = { delta = (regenerationRate / max(currentGameTimeScale, prevGameTimeScale, 1)) *
-	(currentGameTime - prevGameTime) }
+			(currentGameTime - prevGameTime) }
 
 	-- Run all registered handlers before clamping
 	for _, handler in ipairs(magickaHandlers) do
@@ -166,15 +165,15 @@ end
 -- and will automatically start or stop the magicka tick timer
 local function updateSelfRunState()
 	runOnSelf = generalSettings:get("modEnable") and
-	((types.Player.objectIsInstance(self) and gameplaySettings:get("enablePlayerRegeneration"))
-		or (types.NPC.objectIsInstance(self) and gameplaySettings:get("enableNPCRegeneration"))
-		or (types.Creature.objectIsInstance(self) and gameplaySettings:get("enableCreatureRegeneration")))
+		((types.Player.objectIsInstance(self) and gameplaySettings:get("enablePlayerRegeneration"))
+			or (types.NPC.objectIsInstance(self) and gameplaySettings:get("enableNPCRegeneration"))
+			or (types.Creature.objectIsInstance(self) and gameplaySettings:get("enableCreatureRegeneration")))
 
 	if (runOnSelf) then
 		if (stopTickTimerFn) then return end
 		stopTickTimerFn = time.runRepeatedly(
 			magickaRegenTick,
-			TICKINTERVAL
+			TICK_INTERVAL
 		)
 		return
 	end
